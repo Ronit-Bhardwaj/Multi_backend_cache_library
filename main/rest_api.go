@@ -1,109 +1,118 @@
 package main
 
 import (
-    "Go-cache-library/cache"
-    "github.com/gin-gonic/gin"
-    "log"
-    "net/http"
-    "time"
+	"Go-cache-library/cache"
+	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
 
 var redisCache *cache.RedisCache
 var lruCache *cache.LRU
 
 func init() {
-
-    redisCache = cache.NewRedisCache()
-    lruCache = cache.Newlru(100) 
+	lruCache = cache.Newlru(100, 10*time.Minute)
+	redisCache = cache.NewRedisCache()
 }
 
 type RequestBody struct {
-    Key   string      `json:"key"`
-    Value interface{} `json:"value"`
-    TTL   int         `json:"ttl"` 
+	Key   string      `json:"key"`
+	Value interface{} `json:"value"`
+	TTL   int         `json:"ttl"`
 }
 
 func main() {
-    router := gin.Default()
+	router := gin.Default()
 
-    router.POST("/set", func(c *gin.Context) {
-        var body RequestBody
-        if err := c.ShouldBindJSON(&body); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
+	router.POST("/set", func(c *gin.Context) {
+		var body RequestBody
+		if err := c.ShouldBindJSON(&body); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
 
-        ttl := time.Duration(body.TTL) * time.Second
+		ttl := time.Duration(body.TTL) * time.Second
 
-        if err := lruCache.Set(body.Key, body.Value, ttl); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+		if err := lruCache.Set(body.Key, body.Value, ttl); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-        if err := redisCache.Set(body.Key, body.Value, ttl); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+		if err := redisCache.Set(body.Key, body.Value, ttl); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-        c.JSON(http.StatusOK, gin.H{"status": "set successful"})
-    })
+		c.JSON(http.StatusOK, gin.H{"status": "set successful"})
+	})
 
-    router.GET("/get/:key", func(c *gin.Context) {
-        key := c.Param("key")
+	router.GET("/get/:key", func(c *gin.Context) {
+		key := c.Param("key")
 
-        if val, err := lruCache.Get(key); err == nil {
-            c.JSON(http.StatusOK, gin.H{"value": val, "source": "LRU"})
-            return
-        }
+		if val, err := lruCache.Get(key); err == nil {
+			c.JSON(http.StatusOK, gin.H{"value": val, "source": "LRU"})
+			return
+		}
 
-        if val, err := redisCache.Get(key); err == nil {
-            c.JSON(http.StatusOK, gin.H{"value": val, "source": "Redis"})
-            return
-        }
+		if val, err := redisCache.Get(key); err == nil {
+			c.JSON(http.StatusOK, gin.H{"value": val, "source": "Redis"})
+			return
+		}
 
-        c.JSON(http.StatusNotFound, gin.H{"error": "key not found"})
-    })
+		c.JSON(http.StatusNotFound, gin.H{"error": "key not found"})
+	})
 
-    router.GET("/get", func(c *gin.Context) {
-        lruKeys := lruCache.GetAllKeys()
-        redisKeys, err := redisCache.GetAllKeys()
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+	router.GET("/get", func(c *gin.Context) {
+		lruKeys := lruCache.GetAllKeys()
+		redisKeys, err := redisCache.GetAllKeys()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-        c.JSON(http.StatusOK, gin.H{
-            "lru_keys":   lruKeys,
-            "redis_keys": redisKeys,
-        })
-    })
+		c.JSON(http.StatusOK, gin.H{
+			"lru_keys":   lruKeys,
+			"redis_keys": redisKeys,
+		})
+	})
 
-    router.DELETE("/delete/:key", func(c *gin.Context) {
-        key := c.Param("key")
+	router.DELETE("/delete/:key", func(c *gin.Context) {
+		key := c.Param("key")
 
-        if err := lruCache.Delete(key); err != nil {
-            c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-            return
-        }
+		if err := lruCache.Delete(key); err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
 
-        if err := redisCache.Delete(key); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+		if err := redisCache.Delete(key); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-        c.JSON(http.StatusOK, gin.H{"status": "delete successful"})
-    })
+		c.JSON(http.StatusOK, gin.H{"status": "delete successful"})
+	})
 
-    router.POST("/clear", func(c *gin.Context) {
+	router.POST("/clear", func(c *gin.Context) {
+		lruCache.Clear()
+		if err := redisCache.Clear(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-        lruCache.Clear()
-        if err := redisCache.Clear(); err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
+		c.JSON(http.StatusOK, gin.H{"status": "cache cleared"})
+	})
 
-        c.JSON(http.StatusOK, gin.H{"status": "cache cleared"})
-    })
+	stopChan := make(chan os.Signal, 1)
+	signal.Notify(stopChan, os.Interrupt)
 
-    log.Fatal(router.Run(":8080"))
+	go func() {
+		<-stopChan
+		lruCache.StopCleanup()
+		os.Exit(0)
+	}()
+
+	log.Fatal(router.Run(":8080"))
 }
