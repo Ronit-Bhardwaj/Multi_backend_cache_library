@@ -27,3 +27,20 @@ func BenchmarkLRUGetAllKeys(b *testing.B) {
         _ = lru.GetAllKeys()
     }
 }
+
+func BenchmarkLRUDelete(b *testing.B) {
+    lru := cache.Newlru(100)
+    _ = lru.Set("benchmark:key", "value", 10*time.Second)
+    for i := 0; i < b.N; i++ {
+        _ = lru.Delete("benchmark:key")
+    }
+}
+
+func BenchmarkLRUClear(b *testing.B) {
+    lru := cache.Newlru(100)
+    _ = lru.Set("benchmark:key1", "value1", 10*time.Second)
+    _ = lru.Set("benchmark:key2", "value2", 10*time.Second)
+    for i := 0; i < b.N; i++ {
+        lru.Clear()
+    }
+}
