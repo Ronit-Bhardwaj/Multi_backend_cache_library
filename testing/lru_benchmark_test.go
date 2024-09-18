@@ -6,14 +6,14 @@ import (
     "time"
 )
 func BenchmarkLRUSet(b *testing.B) {
-    lru := cache.Newlru(100, 0)
+    lru := cache.Newlru(100)
     for i := 0; i < b.N; i++ {
         _ = lru.Set("benchmark:key", "value", 10*time.Second)
     }
 }
 
 func BenchmarkLRUGet(b *testing.B) {
-    lru := cache.Newlru(100, 0)
+    lru := cache.Newlru(100)
     _ = lru.Set("benchmark:key", "value", 10*time.Second)
     for i := 0; i < b.N; i++ {
         _, _ = lru.Get("benchmark:key")
@@ -21,7 +21,7 @@ func BenchmarkLRUGet(b *testing.B) {
 }
 
 func BenchmarkLRUGetAllKeys(b *testing.B) {
-    lru := cache.Newlru(100, 0)
+    lru := cache.Newlru(100)
     for i := 0; i < b.N; i++ {
         _ = lru.Set("benchmark:key", "value", 10*time.Second)
         _ = lru.GetAllKeys()
@@ -29,7 +29,7 @@ func BenchmarkLRUGetAllKeys(b *testing.B) {
 }
 
 func BenchmarkLRUDelete(b *testing.B) {
-    lru := cache.Newlru(100, 0)
+    lru := cache.Newlru(100)
     _ = lru.Set("benchmark:key", "value", 10*time.Second)
     for i := 0; i < b.N; i++ {
         _ = lru.Delete("benchmark:key")
@@ -37,7 +37,7 @@ func BenchmarkLRUDelete(b *testing.B) {
 }
 
 func BenchmarkLRUClear(b *testing.B) {
-    lru := cache.Newlru(100, 0)
+    lru := cache.Newlru(100)
     _ = lru.Set("benchmark:key1", "value1", 10*time.Second)
     _ = lru.Set("benchmark:key2", "value2", 10*time.Second)
     for i := 0; i < b.N; i++ {

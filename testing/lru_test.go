@@ -7,7 +7,7 @@ import (
 )
 
 func TestLRU_SetAndGet(t *testing.T) {
-	lru := cache.Newlru(3, 0)
+	lru := cache.Newlru(3)
 
 	// Testing set and get
 	lru.Set("1", 100, 10*time.Second)
@@ -17,8 +17,8 @@ func TestLRU_SetAndGet(t *testing.T) {
 	}
 
 	// Test expiration
-	lru.Set("2", 200, 1*time.Second)
-	time.Sleep(2 * time.Second)
+	lru.Set("2", 200, 10*time.Second)
+	time.Sleep(11 * time.Second)
 	_, err = lru.Get("2")
 	if err == nil {
 		t.Errorf("expected cache miss due to expiration")
@@ -40,7 +40,7 @@ func TestLRU_SetAndGet(t *testing.T) {
 }
 
 func TestLRU_Delete(t *testing.T) {
-	lru := cache.Newlru(2, 0)
+	lru := cache.Newlru(2)
 
 	lru.Set("1", 100, 10*time.Second)
 	lru.Delete("1")
@@ -52,7 +52,7 @@ func TestLRU_Delete(t *testing.T) {
 }
 
 func TestLRU_Clear(t *testing.T) {
-	lru := cache.Newlru(2, 0)
+	lru := cache.Newlru(2)
 
 	lru.Set("1", 100, 10*time.Second)
 	lru.Set("2", 200, 10*time.Second)
@@ -70,7 +70,7 @@ func TestLRU_Clear(t *testing.T) {
 }
 
 func TestLRU_GetAllKeys(t *testing.T) {
-    lru := cache.Newlru(3, 0)
+    lru := cache.Newlru(3)
 
     lru.Set("1", 100, 10*time.Second)
     lru.Set("2", 200, 10*time.Second)

@@ -75,7 +75,7 @@ func TestRedisCache(t *testing.T) {
             t.Errorf("expected 3 keys, got %d", len(keys))
         }
 
-        if !contain(keys, "key1") || !contains(keys, "key2") || !contains(keys, "key3") {
+        if !contain(keys, "key1") || !contain(keys, "key2") || !contain(keys, "key3") {
             t.Errorf("keys do not contain expected values")
         }
     })
