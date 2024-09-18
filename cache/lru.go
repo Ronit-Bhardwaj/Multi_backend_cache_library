@@ -22,12 +22,12 @@ type data struct {
 	expired time.Time
 }
 
-func Newlru(capacity int, cleanupInterval time.Duration) *LRU {
+func Newlru(capacity int) *LRU {
 	lru := &LRU{
 		capacity:        capacity,
 		items:           make(map[string]*list.Element),
 		evict:           list.New(),
-		cleanupInterval: cleanupInterval,
+		cleanupInterval: 10*time.Second,
 		stopCleanup:    make(chan struct{}),
 	}
 	go lru.startCleanup()

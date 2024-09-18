@@ -337,7 +337,7 @@ Functionality: Redis supports retrieving all keys.
 
 Tests: The TestRedisCache_GetAllKeys test demonstrated that all keys in the cache can be retrieved, matching the expected results.
 
-<img width="388" alt="testing" src="https://github.com/user-attachments/assets/10ecbcd5-544e-40db-9afe-d076e4d06ae1">
+<img width="354" alt="testing" src="https://github.com/user-attachments/assets/7c426311-87e1-4271-a51d-db2792d3ed44">
 
 LRU Cache Benchmarking:
 
@@ -367,7 +367,7 @@ Benchmark tests for GetAllKeys provide insights into the performance of retrievi
 
 Benchmarks for Delete show how fast Redis can remove individual keys, which typically involves a straightforward key removal process. Clear benchmarks test Redis's ability to flush the entire database, which is optimized but can be slower depending on the number of stored entries.
 
-<img width="440" alt="benchmarking" src="https://github.com/user-attachments/assets/13ebf5e9-ef2f-43d9-8d9c-8f021178ffa9">
+<img width="445" alt="benchmarking" src="https://github.com/user-attachments/assets/875d01db-dea6-4f15-9292-54e309e33f52">
 
 5. Best practices for integrating the library into Go applications:
    

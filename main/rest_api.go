@@ -14,7 +14,7 @@ var redisCache *cache.RedisCache
 var lruCache *cache.LRU
 
 func init() {
-	lruCache = cache.Newlru(100, 10*time.Minute)
+	lruCache = cache.Newlru(100)
 	redisCache = cache.NewRedisCache()
 }
 
