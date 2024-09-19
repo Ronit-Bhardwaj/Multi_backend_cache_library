@@ -66,16 +66,18 @@ func main() {
 	})
 
 	router.GET("/get", func(c *gin.Context) {
-		lruKeys := lruCache.GetAllKeys()
-		redisKeys, err := redisCache.GetAllKeys()
+		
+		lruItems := lruCache.GetAllKeys()
+		
+		allKeys, err := redisCache.GetAllKeys() 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
+	
 		c.JSON(http.StatusOK, gin.H{
-			"lru_keys":   lruKeys,
-			"redis_keys": redisKeys,
+			"lru_items":   lruItems,
+			"keys": allKeys,
 		})
 	})
 

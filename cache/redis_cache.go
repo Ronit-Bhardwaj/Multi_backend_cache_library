@@ -64,16 +64,30 @@ func (r *RedisCache) Get(key string) (interface{}, error) {
 	return result, nil
 }
 
-func (r *RedisCache) GetAllKeys() ([]string, error) {
+func (r *RedisCache) GetAllKeys() (map[string]interface{}, error) {
     r.mutex.Lock()
     defer r.mutex.Unlock()
-
+   
     keys, err := r.client.Keys(r.ctx, "*").Result()
     if err != nil {
         return nil, fmt.Errorf("failed to get keys from Redis: %w", err)
     }
 
-    return keys, nil
+    items := make(map[string]interface{})
+    for _, key := range keys {
+        val, err := r.client.Get(r.ctx, key).Result()
+        if err != nil {
+            return nil, fmt.Errorf("failed to get value for key %s: %w", key, err)
+        }
+        
+        var result interface{}
+        if err := json.Unmarshal([]byte(val), &result); err != nil {
+            return nil, fmt.Errorf("failed to unmarshal value for key %s: %w", key, err)
+        }
+        items[key] = result
+    }
+
+    return items, nil
 }
 
 func (r *RedisCache) Delete(key string) error {

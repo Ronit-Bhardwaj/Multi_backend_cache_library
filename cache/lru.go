@@ -71,15 +71,15 @@ func (lru *LRU) Get(key string) (interface{}, error) {
 	return nil, fmt.Errorf("cache miss")
 }
 
-func (lru *LRU) GetAllKeys() []string {
-	lru.mutex.Lock()
-	defer lru.mutex.Unlock()
+func (lru *LRU) GetAllKeys() map[string]interface{} {
+    lru.mutex.Lock()
+    defer lru.mutex.Unlock()
 
-	keys := make([]string, 0, len(lru.items))
-	for key := range lru.items {
-		keys = append(keys, key)
-	}
-	return keys
+    items := make(map[string]interface{}, len(lru.items))
+    for key, value := range lru.items {
+        items[key] = value.Value.(*data).Value
+    }
+    return items
 }
 
 func (lru *LRU) Delete(key string) error {

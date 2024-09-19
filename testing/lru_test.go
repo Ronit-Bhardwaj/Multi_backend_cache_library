@@ -72,25 +72,45 @@ func TestLRU_Clear(t *testing.T) {
 func TestLRU_GetAllKeys(t *testing.T) {
     lru := cache.Newlru(3)
 
+    // Set some items
     lru.Set("1", 100, 10*time.Second)
     lru.Set("2", 200, 10*time.Second)
     lru.Set("3", 300, 10*time.Second)
 
-    keys := lru.GetAllKeys()
-    if len(keys) != 3 {
-        t.Errorf("expected 3 keys, got %d", len(keys))
+    // Retrieve all keys
+    items := lru.GetAllKeys()
+    if len(items) != 3 {
+        t.Errorf("expected 3 items, got %d", len(items))
     }
 
-    if !contains(keys, "1") || !contains(keys, "2") || !contains(keys, "3") {
-        t.Errorf("keys do not contain expected values")
+    // Verify the values
+    if val, ok := items["1"]; !ok || val != 100 {
+        t.Errorf("expected key '1' to have value 100, got %v", val)
     }
-}
+    if val, ok := items["2"]; !ok || val != 200 {
+        t.Errorf("expected key '2' to have value 200, got %v", val)
+    }
+    if val, ok := items["3"]; !ok || val != 300 {
+        t.Errorf("expected key '3' to have value 300, got %v", val)
+    }
 
-func contains(slice []string, item string) bool {
-    for _, a := range slice {
-        if a == item {
-            return true
-        }
+    // Test eviction
+    lru.Set("4", 400, 10*time.Second)
+    lru.Set("5", 500, 10*time.Second)
+
+    items = lru.GetAllKeys()
+    if len(items) != 3 {
+        t.Errorf("expected 3 items after eviction, got %d", len(items))
     }
-    return false
+
+    // Verify that evicted keys are not present
+    if _, ok := items["1"]; ok {
+        t.Errorf("expected key '1' to be evicted, but it was found")
+    }
+    if val, ok := items["4"]; !ok || val != 400 {
+        t.Errorf("expected key '4' to have value 400, got %v", val)
+    }
+    if val, ok := items["5"]; !ok || val != 500 {
+        t.Errorf("expected key '5' to have value 500, got %v", val)
+    }
 }

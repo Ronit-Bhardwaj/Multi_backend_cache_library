@@ -15,6 +15,7 @@ func TestRedisCache(t *testing.T) {
 	key := "test:key"
 	value := map[string]interface{}{"name": "Alice", "age": 30}
 	ttl := 10 * time.Second
+    
 	t.Run("Set", func(t *testing.T) {
 		err := cache.Set(key, value, ttl)
 		assert.NoError(t, err, "Error setting cache")
@@ -63,29 +64,28 @@ func TestRedisCache(t *testing.T) {
 		_, err = cache.Get("test:key2")
 		assert.Error(t, err, "Expected error getting cleared cache")
 	})
+
 	t.Run("GetAllKeys", func(t *testing.T) {
-        cache.Set("key1", value, ttl)
-        cache.Set("key2", value, ttl)
-        cache.Set("key3", value, ttl)
+        key1 := "test_key1"
+        value1 := map[string]interface{}{"name": "Alice"}
 
-        keys, err := cache.GetAllKeys()
-        assert.NoError(t, err, "Error getting all keys from Redis")
+        key2 := "test_key2"
+        value2 := map[string]interface{}{"name": "Bob"}
 
-        if len(keys) != 3 {
-            t.Errorf("expected 3 keys, got %d", len(keys))
-        }
+        err := cache.Set(key1, value1, 10*time.Second)
+        assert.NoError(t, err, "Error setting cache")
 
-        if !contain(keys, "key1") || !contain(keys, "key2") || !contain(keys, "key3") {
-            t.Errorf("keys do not contain expected values")
-        }
+        err = cache.Set(key2, value2, 10*time.Second)
+        assert.NoError(t, err, "Error setting cache")
+
+        items, err := cache.GetAllKeys()
+        assert.NoError(t, err, "Error getting all keys")
+
+        assert.Contains(t, items, key1, "Key1 should be in the cache")
+        assert.Contains(t, items, key2, "Key2 should be in the cache")
+        assert.Equal(t, value1, items[key1], "Cached value for key1 does not match")
+        assert.Equal(t, value2, items[key2], "Cached value for key2 does not match")
     })
+
 }
 
-func contain(slice []string, item string) bool {
-    for _, a := range slice {
-        if a == item {
-            return true
-        }
-    }
-    return false
-}
