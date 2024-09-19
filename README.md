@@ -307,7 +307,7 @@ Tests: The TestLRU_Clear test confirmed that the cache can be cleared, and all e
 
 ⦁	GetAllKeys Functionality:
 
-Functionality: The GetAllKeys function retrieves all current keys in the cache.
+Functionality: The GetAllKeys function retrieves all current keys and values in the cache.
 
 Tests: The TestLRU_GetAllKeys test showed that all keys are returned and matched the expected keys.
 
@@ -333,7 +333,7 @@ Tests: The TestRedisCache_Clear test showed that all cache entries are cleared w
 
 ⦁	GetAllKeys Functionality:
 
-Functionality: Redis supports retrieving all keys.
+Functionality: Redis supports retrieving all keys and values.
 
 Tests: The TestRedisCache_GetAllKeys test demonstrated that all keys in the cache can be retrieved, matching the expected results.
 
@@ -347,7 +347,7 @@ Benchmarks reveal the performance for setting and retrieving entries in the LRU 
 
 ⦁	GetAllKeys Performance:
 
-Benchmarks for GetAllKeys measure how efficiently the LRU cache handles retrieving all keys stored in the cache. The performance is dependent on the internal data structure and the cache size, though it is generally quick as everything is in-memory.
+Benchmarks for GetAllKeys measure how efficiently the LRU cache handles retrieving all keys and values stored in the cache. The performance is dependent on the internal data structure and the cache size, though it is generally quick as everything is in-memory.
 
 ⦁	Delete and Clear Performance:
 
@@ -361,7 +361,7 @@ Benchmark tests show the performance of setting and getting individual entries i
 
 ⦁	GetAllKeys Performance:
 
-Benchmark tests for GetAllKeys provide insights into the performance of retrieving all keys from Redis. This operation can be impacted by the number of keys and the server's performance, though Redis is typically optimized for handling such queries efficiently.
+Benchmark tests for GetAllKeys provide insights into the performance of retrieving all keys and values from Redis. This operation can be impacted by the number of keys and the server's performance, though Redis is typically optimized for handling such queries efficiently.
 
 ⦁	Delete and Clear Performance:
 
@@ -403,6 +403,6 @@ Integration Testing: Test interactions between our application and the caching l
 
 Benchmarking: Utilize Go’s built-in benchmarking framework (testing package) to write benchmark tests. This allows us to measure the performance of cache operations under different scenarios.
 
-⦁	Documentation:
+⦁	Documentation
 
 Documentation: Provide comprehensive documentation for the caching library, including usage examples, configuration options, and best practices. Ensure that developers understand how to integrate and use the library effectively.
